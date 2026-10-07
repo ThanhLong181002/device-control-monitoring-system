@@ -1,30 +1,36 @@
 #pragma once
 #include <string>
-#include "DeviceState.h" // Để sử dụng enum DeviceState
+#include "DeviceState.h"
 
 class Device
 {
 public:
-    // Constructor (Hàm khởi tạo): Thiết lập giá trị ban đầu khi thiết bị vừa được tạo ra
     Device();
 
-    // Các hàm hành vi (Commands)
+    void update();
     void start();
     void stop();
     void reset();
     void emergencyStop();
 
-    // Các hàm lấy thông tin (Getters) - Thêm const vì không sửa đổi dữ liệu của class
+    // Hàm mới cho Phase 1.7
+    void simulateError();
+    const std::string &getErrorMessage() const; // Trả về tham chiếu hằng để tối ưu hiệu năng
+
     DeviceState getState() const;
     double getTemperature() const;
-    bool isMotorRunning() const;    // Hàm bổ sung để main.cpp kiểm tra trạng thái motor
-    bool isConveyorRunning() const; // Hàm bổ sung để main.cpp kiểm tra trạng thái băng tải
+    bool isMotorRunning() const;
+    bool isConveyorRunning() const;
 
 private:
-    // Thuộc tính (Data members) - Giấu kín trong private
     DeviceState state;
     double temperature;
     bool motorRunning;
     bool conveyorRunning;
     std::string errorMessage;
+
+    static constexpr double MIN_TEMP = 25.0;
+    static constexpr double MAX_TEMP = 80.0;
+    static constexpr double TEMP_INC = 0.2;
+    static constexpr double TEMP_DEC = 0.1;
 };

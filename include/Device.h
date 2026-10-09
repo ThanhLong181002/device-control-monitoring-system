@@ -1,26 +1,24 @@
 #pragma once
 #include <string>
+#include <mutex> // Nhúng thư viện mutex để bảo vệ đa luồng
 #include "DeviceState.h"
+#include "DeviceStatus.h" // Nhúng cấu trúc snapshot mới
 
 class Device
 {
 public:
     Device();
 
+    // Hàm cập nhật và các lệnh hành vi (Tất cả sẽ được bọc Lock bên trong file .cpp)
     void update();
     void start();
     void stop();
     void reset();
     void emergencyStop();
-
-    // Hàm mới cho Phase 1.7
     void simulateError();
-    const std::string &getErrorMessage() const; // Trả về tham chiếu hằng để tối ưu hiệu năng
 
-    DeviceState getState() const;
-    double getTemperature() const;
-    bool isMotorRunning() const;
-    bool isConveyorRunning() const;
+    // Hàm duy nhất thay thế toàn bộ getters cũ, trả về bản sao giá trị để an toàn luồng
+    DeviceStatus getStatus() const;
 
 private:
     DeviceState state;
@@ -28,6 +26,9 @@ private:
     bool motorRunning;
     bool conveyorRunning;
     std::string errorMessage;
+
+    // Cơ chế đồng bộ hóa luồng ngầm độc lập của riêng lớp Device
+    mutable std::mutex deviceMutex;
 
     static constexpr double MIN_TEMP = 25.0;
     static constexpr double MAX_TEMP = 80.0;
